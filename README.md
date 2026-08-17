@@ -1,58 +1,553 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TaskForge - Laravel 12 Project Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![TaskForge Dashboard](screenshots/dashboard.png)
 
-## About Laravel
+TaskForge is a production-ready internal project management application built with Laravel 12.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+It helps organizations manage:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Clients
+- Projects
+- Team Members
+- Tasks
+- Time Logs
+- Notifications
+- Email Alerts
+- Role Based Access Control
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Developed as part of the Laravel 12 Engineering Internship Assignment.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+# Features
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Authentication
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+![Login](screenshots/login.png)
 
-## Agentic Development
+- User registration
+- Login / Logout
+- Password confirmation
+- Password reset
+- Profile management
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+
+---
+
+# User Roles
+
+TaskForge supports three roles:
+
+## Admin
+
+- Manage users
+- Manage roles
+- View complete system data
+
+
+## Manager
+
+- Create clients
+- Create projects
+- Assign members
+- Manage project workflow
+
+
+## Member
+
+- View assigned projects
+- Create tasks
+- Add time logs
+
+
+---
+
+# Core Modules
+
+
+## Client Management
+
+![Clients](screenshots/clients.png)
+
+Features:
+
+- Create client
+- Update client
+- View client details
+- Delete client protection
+
+A client cannot be deleted if active projects exist.
+
+
+---
+
+## Project Management
+
+![Projects](screenshots/projects.png)
+
+Features:
+
+- Create projects
+- Assign team members
+- Update project status
+- Archive projects
+- Filter projects
+
+
+Archive rules:
+
+- Archived projects become read-only
+- Projects with unfinished tasks cannot be archived
+
+
+---
+
+## Task Management
+
+![Tasks](screenshots/tasks.png)
+
+Features:
+
+- Create tasks under projects
+- Update task status
+- Track deadlines
+- View total logged minutes
+
+
+---
+
+## Time Tracking
+
+![Time Logs](screenshots/time_logs.png)
+
+Features:
+
+- Add time logs
+- Edit logs
+- Delete logs
+- Minutes validation
+
+Rules:
+
+- Minimum: 1 minute
+- Maximum: 600 minutes per entry
+
+
+---
+
+# Technology Stack
+
+| Technology | Version |
+|-|-|
+| Laravel | 12.x |
+| PHP | 8.3+ |
+| MySQL | 8.x |
+| Blade | Laravel Blade |
+| Bootstrap/CSS | UI |
+| Pest/PHPUnit | Testing |
+
+
+---
+
+# Requirements
+
+Before installation install:
+
+- PHP >= 8.2
+- Composer
+- MySQL
+- Node.js
+- NPM
+
+
+Check versions:
 
 ```bash
-composer require laravel/boost --dev
+php -v
 
-php artisan boost:install
+composer -V
+
+node -v
+
+npm -v
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+# Installation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+## 1. Clone Repository
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone repository-url
 
-## Security Vulnerabilities
+cd TaskForge
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
+## 2. Install PHP Dependencies
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer install
+```
+
+
+## 3. Environment Setup
+
+Copy environment file:
+
+```bash
+cp .env.example .env
+```
+
+
+Generate application key:
+
+```bash
+php artisan key:generate
+```
+
+
+---
+
+# Database Configuration
+
+Update `.env`:
+
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=taskforge
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+
+Create database:
+
+```
+taskforge
+```
+
+
+---
+
+# Run Migration and Seed Database
+
+
+Fresh database with demo data:
+
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+
+Seeded data:
+
+- 6 Users
+- 5 Clients
+- 10 Projects
+- 30 Tasks
+- 100 Time Logs
+
+
+Demo roles:
+
+```
+Admin
+Manager
+Member
+```
+
+
+---
+
+# Run Application
+
+
+Start Laravel server:
+
+
+```bash
+php artisan serve
+```
+
+
+Application:
+
+```
+http://127.0.0.1:8000
+```
+
+
+---
+
+# Frontend Assets
+
+
+Install packages:
+
+
+```bash
+npm install
+```
+
+
+Run Vite:
+
+
+```bash
+npm run dev
+```
+
+
+---
+
+# Queue Setup
+
+
+TaskForge uses Laravel queues for background notifications.
+
+
+Run:
+
+
+```bash
+php artisan queue:work
+```
+
+
+Queue handles:
+
+- Overdue task notifications
+- Email notifications
+
+
+---
+
+# Testing
+
+
+Run complete test suite:
+
+
+```bash
+php artisan test
+```
+
+
+Implemented tests cover:
+
+- Authentication
+- Authorization
+- Client permissions
+- Project rules
+- Task validation
+- Time log validation
+- Delete protection
+- Business rule failures
+
+
+Current test coverage:
+
+```
+16+ Feature Tests
+```
+
+---
+
+# Requirement Mapping
+
+
+| Requirement | Implementation |
+|-|-|
+| Authentication | Laravel Breeze |
+| Roles | Middleware + Authorization |
+| Clients CRUD | ClientController |
+| Projects CRUD | ProjectController |
+| Tasks CRUD | TaskController |
+| Time Logs | TimeLogController |
+| Validation | Form Requests |
+| Notifications | Laravel Notifications |
+| Testing | Pest Feature Tests |
+| Database | MySQL migrations + seeders |
+
+
+---
+
+# Engineering Practices
+
+
+## Form Requests
+
+All validation is handled using:
+
+```
+app/Http/Requests
+```
+
+
+No validation logic exists inside controllers.
+
+
+---
+
+## Authorization
+
+Access control implemented using:
+
+- Middleware
+- Policies
+
+
+Protected actions:
+
+- Client management
+- Project management
+- Task access
+- Time logging
+
+
+---
+
+## Eloquent Optimization
+
+To avoid N+1 queries:
+
+Example eager loading:
+
+```php
+Project::with([
+    'client',
+    'tasks',
+    'members'
+])->get();
+```
+
+
+---
+
+# Database Relationships
+
+
+## User
+
+- Has many TimeLogs
+- Belongs to many Projects
+
+
+## Client
+
+- Has many Projects
+
+
+## Project
+
+- Belongs to Client
+- Has many Tasks
+- Belongs to many Users
+
+
+## Task
+
+- Belongs to Project
+- Has many TimeLogs
+
+
+## TimeLog
+
+- Belongs to Task
+- Belongs to User
+
+
+---
+
+# Screenshots
+
+
+## Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+
+## Login
+
+![Login](screenshots/login.png)
+
+
+## Clients
+
+![Clients](screenshots/clients.png)
+
+
+## Projects
+
+![Projects](screenshots/projects.png)
+
+
+## Tasks
+
+![Tasks](screenshots/tasks.png)
+
+
+## Time Logs
+
+![Time Logs](screenshots/time_logs.png)
+
+
+---
+
+# Project Structure
+
+
+```
+app
+ ├── Actions
+ ├── Http
+ │    ├── Controllers
+ │    ├── Requests
+ │    └── Policies
+ ├── Models
+ ├── Notifications
+
+
+database
+ ├── migrations
+ ├── factories
+ └── seeders
+
+
+tests
+ └── Feature
+```
+
+
+---
+
+# Assignment Compliance
+
+
+Implemented according to Laravel 12 Internship requirements:
+
+✔ MVC Architecture  
+✔ Form Requests  
+✔ Policies  
+✔ Eloquent Relationships  
+✔ Seed Data  
+✔ Notifications  
+✔ Queue Processing  
+✔ Automated Tests  
+✔ Role Based Access Control  
+
+
+---
+
+# Author
+
+Your Name
+
+Laravel 12 Full Stack Developer
