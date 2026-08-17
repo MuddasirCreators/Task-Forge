@@ -16,7 +16,11 @@ It helps organizations manage:
 - Role Based Access Control
 
 Developed as part of the Laravel 12 Engineering Internship Assignment.
+## Project Repository
 
+The complete source code of TaskForge is available on GitHub:
+
+🔗 https://github.com/MuddasirCreators/Task-Forge
 ---
 
 # Features
