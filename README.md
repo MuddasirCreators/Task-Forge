@@ -27,9 +27,9 @@ The complete source code of TaskForge is available on GitHub:
 
 ## Authentication
 
-![Login](screenshots/login.png)
+![Login](screenshots/Login.PNG)
 
-- User registration
+- User registration 
 - Login / Logout
 - Password confirmation
 - Password reset
@@ -71,7 +71,7 @@ TaskForge supports three roles:
 
 ## Client Management
 
-![Clients](screenshots/clients.png)
+![Clients](screenshots/Clients.PNG)
 
 Features:
 
@@ -87,7 +87,7 @@ A client cannot be deleted if active projects exist.
 
 ## Project Management
 
-![Projects](screenshots/projects.png)
+![Projects](screenshots/Projects.PNG)
 
 Features:
 
@@ -108,7 +108,7 @@ Archive rules:
 
 ## Task Management
 
-![Tasks](screenshots/tasks.png)
+![Tasks](screenshots/Tasks.PNG)
 
 Features:
 
@@ -122,7 +122,7 @@ Features:
 
 ## Time Tracking
 
-![Time Logs](screenshots/time_logs.png)
+![Time Logs](screenshots/Time_Logs.PNG)
 
 Features:
 
