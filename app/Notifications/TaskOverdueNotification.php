@@ -22,7 +22,7 @@ class TaskOverdueNotification extends Notification
      */
     public function __construct(Task $task)
     {
-        $this->task = $task;
+        $this->task = $task; 
     }
 
 
