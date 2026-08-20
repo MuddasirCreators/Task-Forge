@@ -6,9 +6,7 @@ use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-
 uses(RefreshDatabase::class);
-
 
 
 function createTimeLogTestUser()
@@ -19,7 +17,7 @@ function createTimeLogTestUser()
 
         'email' => 'member@test.com',
 
-        'password' => 'password',
+        'password' => bcrypt('password'),
 
         'role' => 'Member',
 
@@ -32,10 +30,7 @@ function createTimeLogTestUser()
 
 
 
-
-
 test('minutes cannot exceed limit', function () {
-
 
     $user = createTimeLogTestUser();
 
@@ -50,7 +45,6 @@ test('minutes cannot exceed limit', function () {
         'created_by' => $user->id,
 
     ]);
-
 
 
 
@@ -72,9 +66,8 @@ test('minutes cannot exceed limit', function () {
 
 
 
-    // Important because StoreTimeLogRequest checks project members
+    // Required because StoreTimeLogRequest checks project membership
     $project->members()->attach($user->id);
-
 
 
 
@@ -86,13 +79,12 @@ test('minutes cannot exceed limit', function () {
 
         'description' => 'Testing task',
 
-        'status' => 'Pending',
+        // Valid Task statuses: Todo, In Progress, Done
+        'status' => 'Todo',
 
         'due_date' => now()->addDays(2),
 
     ]);
-
-
 
 
 
@@ -115,8 +107,6 @@ test('minutes cannot exceed limit', function () {
             ]
 
         );
-
-
 
 
 

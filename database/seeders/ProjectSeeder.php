@@ -17,10 +17,7 @@ class ProjectSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $manager = User::where(
-            'role',
-            'Manager'
-        )->firstOrFail();
+        $manager = User::where('role', 'Manager')->firstOrFail();
 
 
         /*
@@ -29,10 +26,7 @@ class ProjectSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $members = User::where(
-            'role',
-            'Member'
-        )->get();
+        $members = User::where('role', 'Member')->get();
 
 
         /*
@@ -44,43 +38,51 @@ class ProjectSeeder extends Seeder
         |
         */
 
-        Client::all()
-            ->each(function ($client) use (
-                $manager,
-                $members
-            ) {
+        Client::all()->each(function ($client) use ($manager, $members) {
 
-                Project::factory()
-                    ->count(2)
-                    ->create([
-                        'client_id' => $client->id,
-                        'created_by' => $manager->id,
-                    ])
-                    ->each(function ($project) use (
-                        $members
-                    ) {
+            Project::factory()
+                ->count(2)
+                ->create([
+                    'client_id' => $client->id,
+                    'created_by' => $manager->id,
+                ])
+                ->each(function ($project, $index) use ($members) {
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Assign Members To Project
-                        |--------------------------------------------------------------------------
-                        */
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Assign Realistic Members To Project
+                    |--------------------------------------------------------------------------
+                    */
 
-                        if ($members->isNotEmpty()) {
+                    if ($members->count() >= 3) {
 
-                            $memberCount = min(
-                                $members->count(),
-                                2
-                            );
+                        $projectNumber = ($project->id % 3);
 
-                            $project->members()->attach(
-                                $members
-                                    ->random($memberCount)
-                                    ->pluck('id')
-                                    ->toArray()
-                            );
+                        if ($projectNumber === 0) {
+
+                            $assignedMembers = [
+                                $members[0]->id,
+                                $members[1]->id,
+                            ];
+
+                        } elseif ($projectNumber === 1) {
+
+                            $assignedMembers = [
+                                $members[1]->id,
+                                $members[2]->id,
+                            ];
+
+                        } else {
+
+                            $assignedMembers = [
+                                $members[0]->id,
+                                $members[2]->id,
+                            ];
                         }
-                    });
-            });
+
+                        $project->members()->attach($assignedMembers);
+                    }
+                });
+        });
     }
 }

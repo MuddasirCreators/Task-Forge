@@ -12,19 +12,12 @@ uses(RefreshDatabase::class);
 function createProjectUser()
 {
     return User::create([
-
         'name' => 'Manager User',
-
         'email' => 'manager@example.com',
-
-        'password' => 'password',
-
+        'password' => bcrypt('password'),
         'role' => 'Manager',
-
         'is_active' => true,
-
         'is_logged_in' => false,
-
     ]);
 }
 
@@ -33,7 +26,6 @@ function createProjectUser()
 test('manager can create project', function () {
 
     $user = createProjectUser();
-
 
     $client = Client::create([
         'name' => 'Test Client',
@@ -78,6 +70,7 @@ test('project cannot archive with pending tasks', function () {
     ]);
 
 
+
     $project = Project::create([
 
         'client_id' => $client->id,
@@ -96,7 +89,11 @@ test('project cannot archive with pending tasks', function () {
         'project_id' => $project->id,
         'title' => 'Pending Task',
         'description' => 'Pending task',
-        'status' => 'Pending',
+
+        // Task table does not allow Pending
+        // Allowed values: Todo, In Progress, Done
+        'status' => 'Todo',
+
         'priority' => 'High',
         'due_date' => now()->addDays(5),
 
@@ -110,5 +107,6 @@ test('project cannot archive with pending tasks', function () {
 
 
     $response->assertSessionHas('error');
+
 
 });
