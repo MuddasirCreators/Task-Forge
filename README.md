@@ -27,7 +27,7 @@ The complete source code of TaskForge is available on GitHub:
 
 ## Authentication
 
-![Login](screenshots/Login.PNG)
+![Login](screenshots/login.PNG)
 
 - User registration 
 - Login / Logout
@@ -71,7 +71,7 @@ TaskForge supports three roles:
 
 ## Client Management
 
-![Clients](screenshots/Clients.PNG)
+![Clients](screenshots/clients.PNG)
 
 Features:
 
@@ -87,7 +87,7 @@ A client cannot be deleted if active projects exist.
 
 ## Project Management
 
-![Projects](screenshots/Projects.PNG)
+![Projects](screenshots/projects.PNG)
 
 Features:
 
@@ -108,7 +108,7 @@ Archive rules:
 
 ## Task Management
 
-![Tasks](screenshots/Tasks.PNG)
+![Tasks](screenshots/tasks.PNG)
 
 Features:
 
@@ -480,22 +480,22 @@ Project::with([
 
 ## Login
 
-![Login](screenshots/login.png)
+![Login](screenshots/login.PNG)
 
 
 ## Clients
 
-![Clients](screenshots/clients.png)
+![Clients](screenshots/clients.PNG)
 
 
 ## Projects
 
-![Projects](screenshots/projects.png)
+![Projects](screenshots/projects.PNG)
 
 
 ## Tasks
 
-![Tasks](screenshots/tasks.png)
+![Tasks](screenshots/tasks.PNG)
 
 
 ## Time Logs
@@ -552,6 +552,6 @@ Implemented according to Laravel 12 Internship requirements:
 
 # Author
 
-Your Name
+Muddasir Amin
 
-Laravel 12 Full Stack Developer
+Laravel 13 Full Stack Developer
