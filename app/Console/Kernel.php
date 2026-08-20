@@ -12,17 +12,31 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Send overdue task notifications every hour
-        $schedule->command('tasks:notify-overdue')->hourly();
+        /*
+        |--------------------------------------------------------------------------
+        | Overdue Task Notifications
+        |--------------------------------------------------------------------------
+        |
+        | Check for overdue tasks every hour.
+        | The command dispatches the actual queued job.
+        |
+        */
+
+       
     }
+
 
     /**
      * Register the commands for the application.
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(
+            __DIR__ . '/Commands'
+        );
 
-        require base_path('routes/console.php');
+        require base_path(
+            'routes/console.php'
+        );
     }
 }

@@ -2,31 +2,77 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessOverdueTask;
 use App\Models\Task;
-use App\Notifications\TaskOverdueNotification;
 use Illuminate\Console\Command;
 
 class SendOverdueTaskNotifications extends Command
 {
+    /**
+     * Console command signature.
+     */
     protected $signature = 'tasks:notify-overdue';
-    protected $description = 'Send notifications for overdue tasks';
 
-    public function handle()
+
+    /**
+     * Console command description.
+     */
+    protected $description = 'Dispatch jobs for overdue tasks';
+
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
     {
-        $overdueTasks = Task::with('assignee')
+        /*
+        |--------------------------------------------------------------------------
+        | Find Overdue Tasks
+        |--------------------------------------------------------------------------
+        |
+        | A task is considered overdue when:
+        |
+        | 1. It has a due date.
+        | 2. The due date is in the past.
+        | 3. The task status is not Done.
+        |
+        */
+
+        $overdueTasks = Task::query()
+            ->whereNotNull('due_date')
             ->where('due_date', '<', now())
             ->where('status', '!=', 'Done')
             ->get();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dispatch Overdue Task Jobs
+        |--------------------------------------------------------------------------
+        */
+
         $count = 0;
 
+
         foreach ($overdueTasks as $task) {
-            if ($task->assignee) {
-                $task->assignee->notify(new TaskOverdueNotification($task));
-                $count++;
-            }
+
+            ProcessOverdueTask::dispatch($task);
+
+            $count++;
         }
 
-        $this->info('Overdue notifications sent: ' . $count);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Console Output
+        |--------------------------------------------------------------------------
+        */
+
+        $this->info(
+            'Overdue task jobs dispatched: ' . $count
+        );
+
+
+        return self::SUCCESS;
     }
 }

@@ -210,7 +210,17 @@ Route::middleware(['auth'])->group(function () {
             [TaskController::class,'allTasks']
         )
         ->name('tasks.index');
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Confirmation Page
+    |--------------------------------------------------------------------------
+    */
 
+    Route::get(
+        '/projects/{project}/tasks/{task}/delete',
+        [TaskController::class, 'delete']
+    )
+    ->name('projects.tasks.delete');
 
 
         Route::resource(

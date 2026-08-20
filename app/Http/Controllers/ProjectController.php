@@ -2,37 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Project;
 use App\Actions\Projects\ArchiveProject;
+use App\Actions\Projects\CreateProject;
+use App\Actions\Projects\DeleteProject;
+use App\Actions\Projects\RestoreProject;
+use App\Actions\Projects\UpdateProject;
+
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
-use App\Notifications\ProjectAssignedNotification;
+
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\User;
+
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class ProjectController extends Controller
 {
     /**
-     * Display Projects
+     * Display Projects.
      */
     public function index()
     {
+        Gate::authorize(
+            'viewAny',
+            Project::class
+        );
+
         $query = Project::with([
             'client',
             'creator',
         ]);
 
-        // Active / Archived
-        if (request()->boolean('archived')) {
-            $query->whereNotNull('archived_at');
-        } else {
-            $query->whereNull('archived_at');
+        /*
+        |--------------------------------------------------------------------------
+        | Manager
+        |--------------------------------------------------------------------------
+        */
+
+        if (auth()->user()->role === 'Manager') {
+            $query->whereHas(
+                'client',
+                function ($query) {
+                    $query->where(
+                        'created_by',
+                        auth()->id()
+                    );
+                }
+            );
         }
 
-        // Status Filter
+        /*
+        |--------------------------------------------------------------------------
+        | Archived / Active Projects
+        |--------------------------------------------------------------------------
+        */
+
+        if (request()->boolean('archived')) {
+            $query->whereNotNull(
+                'archived_at'
+            );
+        } else {
+            $query->whereNull(
+                'archived_at'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status Filter
+        |--------------------------------------------------------------------------
+        */
+
         if (request()->filled('status')) {
-            $query->where('status', request('status'));
+            $query->where(
+                'status',
+                request('status')
+            );
         }
 
         $projects = $query
@@ -40,63 +87,105 @@ class ProjectController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('projects.index', compact('projects'));
+        return view(
+            'projects.index',
+            compact('projects')
+        );
     }
 
+
     /**
-     * Show Create Form
+     * Show Create Form.
      */
     public function create()
     {
-        $clients = Client::orderBy('name')->get();
+        Gate::authorize(
+            'create',
+            Project::class
+        );
 
-        $members = User::where('role', 'Member')
+        /*
+        |--------------------------------------------------------------------------
+        | Clients
+        |--------------------------------------------------------------------------
+        */
+
+        if (auth()->user()->role === 'Admin') {
+            $clients = Client::orderBy(
+                'name'
+            )->get();
+        } else {
+            $clients = Client::where(
+                'created_by',
+                auth()->id()
+            )
+                ->orderBy('name')
+                ->get();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Members
+        |--------------------------------------------------------------------------
+        */
+
+        $members = User::where(
+            'role',
+            'Member'
+        )
             ->orderBy('name')
             ->get();
 
-        return view('projects.create', compact(
-            'clients',
-            'members'
-        ));
+        return view(
+            'projects.create',
+            compact(
+                'clients',
+                'members'
+            )
+        );
     }
 
+
     /**
-     * Store Project
+     * Store Project.
      */
-    public function store(StoreProjectRequest $request)
-    {
-        $project = Project::create([
-            'client_id'   => $request->client_id,
-            'name'        => $request->name,
-            'status'      => $request->status,
-            'start_date'  => $request->start_date,
-            'due_date'    => $request->due_date,
-            'created_by'  => auth()->id(),
-        ]);
+    public function store(
+        StoreProjectRequest $request,
+        CreateProject $createProject
+    ) {
+        Gate::authorize(
+            'create',
+            Project::class
+        );
 
-        $memberIds = $request->member_ids ?? [];
-
-        $project->members()->sync($memberIds);
-
-        // Send notification to assigned members
-        if (!empty($memberIds)) {
-            $users = User::whereIn('id', $memberIds)->get();
-
-            foreach ($users as $user) {
-                $user->notify(new ProjectAssignedNotification($project));
-            }
-        }
+        $createProject->handle(
+            $request->validated(),
+            auth()->id(),
+            $request->validated('member_ids') ?? []
+        );
 
         return redirect()
-            ->route('projects.index')
-            ->with('success', 'Project created successfully.');
+            ->route(
+                'projects.index'
+            )
+            ->with(
+                'success',
+                'Project created successfully.'
+            );
     }
 
+
     /**
-     * Show Project
+     * Show Project.
      */
-    public function show(Project $project)
-    {
+    public function show(
+        Project $project
+    ) {
+        Gate::authorize(
+            'view',
+            $project
+        );
+
         $project->load([
             'client',
             'creator',
@@ -104,188 +193,272 @@ class ProjectController extends Controller
             'members',
         ]);
 
-        return view('projects.show', compact('project'));
+        return view(
+            'projects.show',
+            compact('project')
+        );
     }
 
+
     /**
-     * Edit Project
+     * Edit Project.
      */
-    public function edit(Project $project)
-    {
+    public function edit(
+        Project $project
+    ) {
+        Gate::authorize(
+            'update',
+            $project
+        );
+
         if ($project->archived_at) {
             return redirect()
-                ->route('projects.index')
-                ->with('error', 'Archived projects cannot be edited.');
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'error',
+                    'Archived projects cannot be edited.'
+                );
         }
 
-        $clients = Client::orderBy('name')->get();
+        /*
+        |--------------------------------------------------------------------------
+        | Clients
+        |--------------------------------------------------------------------------
+        */
 
-        $members = User::where('role', 'Member')
+        if (auth()->user()->role === 'Admin') {
+            $clients = Client::orderBy(
+                'name'
+            )->get();
+        } else {
+            $clients = Client::where(
+                'created_by',
+                auth()->id()
+            )
+                ->orderBy('name')
+                ->get();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Members
+        |--------------------------------------------------------------------------
+        */
+
+        $members = User::where(
+            'role',
+            'Member'
+        )
             ->orderBy('name')
             ->get();
 
-        return view('projects.edit', compact(
-            'project',
-            'clients',
-            'members'
-        ));
+        return view(
+            'projects.edit',
+            compact(
+                'project',
+                'clients',
+                'members'
+            )
+        );
     }
 
+
     /**
-     * Update Project
+     * Update Project.
      */
-    public function update(UpdateProjectRequest $request, Project $project)
-    {
-        if ($project->archived_at) {
-            return redirect()
-                ->route('projects.index')
-                ->with('error', 'Archived projects cannot be updated.');
-        }
+    public function update(
+        UpdateProjectRequest $request,
+        Project $project,
+        UpdateProject $updateProject
+    ) {
+        Gate::authorize(
+            'update',
+            $project
+        );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Project cannot be completed without tasks
-        |--------------------------------------------------------------------------
-        */
-        if (
-            $request->status === 'Completed' &&
-            $project->tasks()->count() === 0
-        ) {
+        try {
+            $updateProject->handle(
+                $project,
+                $request->validated(),
+                $request->validated('member_ids') ?? []
+            );
+        } catch (ValidationException $exception) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'status' => 'A project must have at least one task before it can be marked as Completed.',
-                ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Every task must be Done
-        |--------------------------------------------------------------------------
-        */
-        if (
-            $request->status === 'Completed' &&
-            $project->tasks()
-                ->where('status', '!=', 'Done')
-                ->exists()
-        ) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'status' => 'All project tasks must be marked as Done before completing the project.',
-                ]);
-        }
-
-        // Old members before update
-        $oldMemberIds = $project->members()->pluck('users.id')->toArray();
-
-        $project->update([
-            'client_id'  => $request->client_id,
-            'name'       => $request->name,
-            'status'     => $request->status,
-            'start_date' => $request->start_date,
-            'due_date'   => $request->due_date,
-        ]);
-
-        $newMemberIds = $request->member_ids ?? [];
-
-        $project->members()->sync($newMemberIds);
-
-        // Notify only newly added members
-        $newlyAssignedIds = array_diff($newMemberIds, $oldMemberIds);
-
-        if (!empty($newlyAssignedIds)) {
-            $newUsers = User::whereIn('id', $newlyAssignedIds)->get();
-
-            foreach ($newUsers as $user) {
-                $user->notify(new ProjectAssignedNotification($project));
-            }
+                ->withErrors(
+                    $exception->errors()
+                );
         }
 
         return redirect()
-            ->route('projects.index')
-            ->with('success', 'Project updated successfully.');
+            ->route(
+                'projects.index'
+            )
+            ->with(
+                'success',
+                'Project updated successfully.'
+            );
     }
 
+
     /**
-     * Archive Project
+     * Archive Project.
      */
-    public function archive(Project $project, ArchiveProject $archiveProject)
-    {
+    public function archive(
+        Project $project,
+        ArchiveProject $archiveProject
+    ) {
+        Gate::authorize(
+            'archive',
+            $project
+        );
+
         /*
         |--------------------------------------------------------------------------
-        | Only completed projects can be archived
+        | Project Must Be Completed
         |--------------------------------------------------------------------------
         */
+
         if ($project->status !== 'Completed') {
             return redirect()
-                ->route('projects.index')
-                ->with('error', 'Only completed projects can be archived.');
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'error',
+                    'Only completed projects can be archived.'
+                );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Double check all tasks are completed
+        | All Tasks Must Be Done
         |--------------------------------------------------------------------------
         */
+
         if (
             $project->tasks()
-                ->where('status', '!=', 'Done')
+                ->where(
+                    'status',
+                    '!=',
+                    'Done'
+                )
                 ->exists()
         ) {
             return redirect()
-                ->route('projects.index')
-                ->with('error', 'Project cannot be archived until all tasks are completed.');
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'error',
+                    'Project cannot be archived until all tasks are completed.'
+                );
         }
 
         try {
-            $archiveProject->handle($project);
+            $archiveProject->handle(
+                $project
+            );
 
             return redirect()
-                ->route('projects.index')
-                ->with('success', 'Project archived successfully.');
-        } catch (Exception $exception) {
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'success',
+                    'Project archived successfully.'
+                );
+        } catch (\Exception $exception) {
             return redirect()
-                ->route('projects.index')
-                ->with('error', $exception->getMessage());
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'error',
+                    $exception->getMessage()
+                );
         }
     }
 
+
     /**
-     * Restore Project
+     * Restore Project.
      */
-    public function restore(Project $project)
-    {
-        if (!$project->archived_at) {
+    public function restore(
+        Project $project,
+        RestoreProject $restoreProject
+    ) {
+        Gate::authorize(
+            'restore',
+            $project
+        );
+
+        try {
+            $restoreProject->handle(
+                $project
+            );
+        } catch (ValidationException $exception) {
             return redirect()
-                ->route('projects.index')
-                ->with('error', 'Project is already active.');
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'error',
+                    $exception->errors()['project'][0]
+                        ?? 'Project could not be restored.'
+                );
         }
 
-        $project->update([
-            'archived_at' => null,
-        ]);
-
         return redirect()
-            ->route('projects.index', ['archived' => 1])
-            ->with('success', 'Project restored successfully.');
+            ->route(
+                'projects.index',
+                [
+                    'archived' => 1,
+                ]
+            )
+            ->with(
+                'success',
+                'Project restored successfully.'
+            );
     }
 
+
     /**
-     * Delete Project
+     * Delete Project.
      */
-    public function destroy(Project $project)
-    {
-        if ($project->tasks()->exists()) {
+    public function destroy(
+        Project $project,
+        DeleteProject $deleteProject
+    ) {
+        Gate::authorize(
+            'delete',
+            $project
+        );
+
+        $deleted = $deleteProject->handle(
+            $project
+        );
+
+        if (!$deleted) {
             return redirect()
-                ->route('projects.index')
-                ->with('error', 'Project cannot be deleted because it has associated tasks.');
+                ->route(
+                    'projects.index'
+                )
+                ->with(
+                    'error',
+                    'Project cannot be deleted because it has associated tasks.'
+                );
         }
 
-        $project->delete();
-
         return redirect()
-            ->route('projects.index')
-            ->with('success', 'Project deleted successfully.');
+            ->route(
+                'projects.index'
+            )
+            ->with(
+                'success',
+                'Project deleted successfully.'
+            );
     }
 }

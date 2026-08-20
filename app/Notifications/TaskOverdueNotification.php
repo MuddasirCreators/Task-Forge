@@ -4,29 +4,28 @@ namespace App\Notifications;
 
 use App\Models\Task;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-
-class TaskOverdueNotification extends Notification
+class TaskOverdueNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
 
+    /**
+     * The overdue task.
+     */
     public Task $task;
 
 
-
     /**
-     * Create Notification
+     * Create a new notification instance.
      */
     public function __construct(Task $task)
     {
-        $this->task = $task; 
+        $this->task = $task;
     }
-
-
-
 
 
     /**
@@ -35,16 +34,10 @@ class TaskOverdueNotification extends Notification
     public function via($notifiable): array
     {
         return [
-
             'database',
-
-            'mail'
-
+            'mail',
         ];
     }
-
-
-
 
 
     /**
@@ -52,33 +45,27 @@ class TaskOverdueNotification extends Notification
      */
     public function toArray($notifiable): array
     {
-
         return [
 
             'type' => 'task_overdue',
 
             'title' => 'Task Overdue',
 
-            'message' => 'Task "' . $this->task->title . '" is overdue.',
-
+            'message' =>
+                'Task "' . $this->task->title . '" is overdue.',
 
             'url' => route(
                 'projects.tasks.show',
                 [
                     $this->task->project_id,
-                    $this->task->id
+                    $this->task->id,
                 ]
             ),
-
 
             'icon' => 'bi-exclamation-triangle',
 
         ];
-
     }
-
-
-
 
 
     /**
@@ -86,43 +73,35 @@ class TaskOverdueNotification extends Notification
      */
     public function toMail($notifiable): MailMessage
     {
-
         return (new MailMessage)
 
             ->subject(
                 'Task Overdue Reminder - TaskForge'
             )
 
-
             ->greeting(
                 'Hello ' . $notifiable->name
             )
 
-
             ->line(
-                'A task assigned to you is overdue.'
+                'A task in your project is overdue.'
             )
-
 
             ->line(
                 'Task Name: ' . $this->task->title
             )
 
-
             ->line(
                 'Project: ' . $this->task->project->name
             )
-
 
             ->line(
                 'Due Date: ' . $this->task->due_date
             )
 
-
             ->line(
                 'Current Status: ' . $this->task->status
             )
-
 
             ->action(
                 'View Task',
@@ -130,21 +109,17 @@ class TaskOverdueNotification extends Notification
                     'projects.tasks.show',
                     [
                         $this->task->project_id,
-                        $this->task->id
+                        $this->task->id,
                     ]
                 )
             )
 
-
             ->line(
-                'Please complete this task as soon as possible.'
+                'Please review this overdue task and take the necessary action.'
             )
-
 
             ->line(
                 'TaskForge Project Management System'
             );
-
     }
-
 }

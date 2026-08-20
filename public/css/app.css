@@ -2415,3 +2415,68 @@ select.form-control {
   background: #dcfce7;
   color: #16a34a;
 }
+/* Hide pagination page numbers */
+nav[role="navigation"] > div:last-child {
+    display: none !important;
+}
+
+
+/* Keep previous / next clean */
+nav[role="navigation"] {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* Style Previous / Next */
+nav[role="navigation"] a,
+nav[role="navigation"] span {
+
+    min-width: 120px;
+    height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+}
+
+
+/* Previous / Next buttons */
+nav[role="navigation"] a {
+
+    background: #ffffff;
+
+    border: 1px solid #dbe3ef;
+
+    color: #475569;
+
+    text-decoration: none;
+
+}
+
+
+nav[role="navigation"] a:hover {
+
+    background: #059669;
+
+    color:white;
+
+}
+
+
+/* Result text */
+nav[role="navigation"] p {
+
+    color:#64748b;
+
+    font-size:14px;
+
+}
