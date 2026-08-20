@@ -166,6 +166,24 @@
                         </button>
                     </form>
                 </li>
+                {{-- Delete Task --}}
+<li>
+    <form
+        action="{{ route('projects.tasks.destroy', [$task->project, $task]) }}"
+        method="POST"
+    >
+        @csrf
+        @method('DELETE')
+
+        <button
+            type="submit"
+            class="dropdown-item text-danger"
+        >
+            <i class="bi bi-trash3 me-2"></i>
+            Delete
+        </button>
+    </form>
+</li>
             </ul>
         </div>
     </div>

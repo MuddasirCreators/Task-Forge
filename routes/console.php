@@ -5,6 +5,14 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('tasks:notify-overdue')->hourly();
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+
+Artisan::command(
+    'inspire',
+    function () {
+        $this->comment(
+            Inspiring::quote()
+        );
+    }
+)->purpose(
+    'Display an inspiring quote'
+);

@@ -15,7 +15,7 @@ class UpdateTaskRequest extends FormRequest
     }
 
     /**
-     * Validation Rules
+     * Validation Rules.
      */
     public function rules(): array
     {
@@ -52,14 +52,12 @@ class UpdateTaskRequest extends FormRequest
                 'in:Todo,In Progress,Done',
             ],
 
-            // ===== ADDED =====
             'priority' => [
                 'bail',
                 'required',
                 'in:High,Medium,Low',
             ],
 
-            // ===== ADDED =====
             'assigned_to' => [
                 'bail',
                 'required',
@@ -76,38 +74,71 @@ class UpdateTaskRequest extends FormRequest
     }
 
     /**
-     * Custom Validation Messages
+     * Custom Validation Messages.
      */
     public function messages(): array
     {
         return [
 
-            'project_id.required' => 'Please select a project.',
-            'project_id.integer'  => 'Invalid project selected.',
-            'project_id.exists'   => 'Selected project does not exist.',
+            'project_id.required' =>
+                'Please select a project.',
 
-            'title.required'   => 'Task title is required.',
-            'title.min'        => 'Task title must be at least 3 characters.',
-            'title.max'        => 'Task title may not be greater than 100 characters.',
-            'title.regex'      => 'Task title contains invalid characters.',
-            'title.not_regex'  => 'HTML tags are not allowed in the task title.',
+            'project_id.integer' =>
+                'Invalid project selected.',
 
-            'description.min'       => 'Description must be at least 5 characters.',
-            'description.max'       => 'Description may not be greater than 1000 characters.',
-            'description.not_regex' => 'HTML tags are not allowed in the description.',
+            'project_id.exists' =>
+                'Selected project does not exist.',
 
-            'status.required' => 'Please select task status.',
-            'status.in'       => 'Invalid task status selected.',
+            'title.required' =>
+                'Task title is required.',
 
-            'priority.required' => 'Please select a priority.',
-            'priority.in'       => 'Invalid priority selected.',
+            'title.min' =>
+                'Task title must be at least 3 characters.',
 
-            'assigned_to.required' => 'Please select an assignee.',
-            'assigned_to.integer'  => 'Invalid assignee selected.',
-            'assigned_to.exists'   => 'Selected assignee does not exist.',
+            'title.max' =>
+                'Task title may not be greater than 100 characters.',
 
-            'due_date.required' => 'Due date is required.',
-            'due_date.date'     => 'Due date must be a valid date.',
+            'title.regex' =>
+                'Task title contains invalid characters.',
+
+            'title.not_regex' =>
+                'HTML tags are not allowed in the task title.',
+
+            'description.min' =>
+                'Description must be at least 5 characters.',
+
+            'description.max' =>
+                'Description may not be greater than 1000 characters.',
+
+            'description.not_regex' =>
+                'HTML tags are not allowed in the description.',
+
+            'status.required' =>
+                'Please select task status.',
+
+            'status.in' =>
+                'Invalid task status selected.',
+
+            'priority.required' =>
+                'Please select a priority.',
+
+            'priority.in' =>
+                'Invalid priority selected.',
+
+            'assigned_to.required' =>
+                'Please select an assignee.',
+
+            'assigned_to.integer' =>
+                'Invalid assignee selected.',
+
+            'assigned_to.exists' =>
+                'Selected assignee does not exist.',
+
+            'due_date.required' =>
+                'Due date is required.',
+
+            'due_date.date' =>
+                'Due date must be a valid date.',
         ];
     }
 }

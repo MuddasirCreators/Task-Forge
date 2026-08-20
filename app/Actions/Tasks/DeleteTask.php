@@ -2,8 +2,12 @@
 
 namespace App\Actions\Tasks;
 
+use App\Events\TaskDeleted;
+use App\Events\TaskDeletionFailed;
 use App\Models\Task;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class DeleteTask
 {
@@ -14,28 +18,71 @@ class DeleteTask
     {
         /*
         |--------------------------------------------------------------------------
-        | Business Rule
+        | Store Task Information Before Deletion
         |--------------------------------------------------------------------------
-        | A task cannot be deleted if it has time logs.
-        |--------------------------------------------------------------------------
+        |
+        | The Task model may no longer be available after delete().
+        |
         */
 
-        if ($task->timeLogs()->exists()) {
+        $taskId = $task->id;
 
-            throw ValidationException::withMessages([
+        $projectId = $task->project_id;
 
-                'task' => 'This task cannot be deleted because it has associated time logs.',
+        $taskTitle = $task->title;
 
-            ]);
+        try {
+            /*
+            |--------------------------------------------------------------------------
+            | Business Rule
+            |--------------------------------------------------------------------------
+            | A task cannot be deleted if it has time logs.
+            |--------------------------------------------------------------------------
+            */
 
+            if ($task->timeLogs()->exists()) {
+                throw ValidationException::withMessages([
+                    'task' =>
+                        'This task cannot be deleted because it has associated time logs.',
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Delete Task
+            |--------------------------------------------------------------------------
+            */
+
+            DB::transaction(function () use (
+                $task
+            ) {
+                $task->delete();
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | Successful Delete Audit Event
+            |--------------------------------------------------------------------------
+            */
+
+            TaskDeleted::dispatch(
+                $taskId,
+                $projectId,
+                $taskTitle
+            );
+        } catch (Throwable $exception) {
+            /*
+            |--------------------------------------------------------------------------
+            | Failed Delete Audit Event
+            |--------------------------------------------------------------------------
+            */
+
+            TaskDeletionFailed::dispatch(
+                $task,
+                $exception->getMessage()
+            );
+
+            throw $exception;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Delete Task
-        |--------------------------------------------------------------------------
-        */
-
-        $task->delete();
     }
 }

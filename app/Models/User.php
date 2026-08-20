@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\CustomPasswordResetNotification;
+
 
 
 class User extends Authenticatable
@@ -62,6 +64,17 @@ class User extends Authenticatable
             'is_active' => 'boolean',
 
         ];
+    }
+
+
+    /**
+     * Send custom password reset notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(
+            new CustomPasswordResetNotification($token)
+        );
     }
 
 

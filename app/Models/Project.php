@@ -23,7 +23,7 @@ class Project extends Model
         'start_date',
 
         'due_date',
-
+ 
         'archived_at',
 
         'created_by',

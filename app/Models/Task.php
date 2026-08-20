@@ -47,17 +47,15 @@ class Task extends Model
 
 
 
-
-
     /**
      * Task belongs to Project
      */
     public function project()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(
+            Project::class
+        );
     }
-
-
 
 
 
@@ -74,8 +72,6 @@ class Task extends Model
 
 
 
-
-
     /**
      * Task has many Time Logs
      */
@@ -88,14 +84,29 @@ class Task extends Model
 
 
 
-
-
     /**
      * Total Logged Minutes
+     *
+     * Uses withSum() value when available.
+     * Falls back to loaded relationship.
      */
     public function getTotalLoggedMinutesAttribute()
     {
-        return $this->timeLogs()
-            ->sum('minutes');
+
+        if (
+            isset(
+                $this->attributes['time_logs_sum_minutes']
+            )
+        ) {
+
+            return $this->attributes['time_logs_sum_minutes'];
+
+        }
+
+
+        return $this->relationLoaded('timeLogs')
+            ? $this->timeLogs->sum('minutes')
+            : $this->timeLogs()->sum('minutes');
+
     }
 }
