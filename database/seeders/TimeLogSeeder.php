@@ -12,23 +12,22 @@ class TimeLogSeeder extends Seeder
     public function run(): void
     {
         $members = User::where('role', 'Member')->get();
+        $tasks = Task::all();
 
-        if ($members->isEmpty()) {
+        if ($members->isEmpty() || $tasks->isEmpty()) {
             return;
         }
 
-        Task::all()
-            ->values()
-            ->each(function ($task, $index) use ($members) {
+        TimeLog::factory()
+            ->count(100)
+            ->create()
+            ->each(function ($timeLog) use ($members, $tasks) {
 
-                $count = $index < 10 ? 4 : 3;
+                $timeLog->update([
+                    'task_id' => $tasks->random()->id,
+                    'user_id' => $members->random()->id,
+                ]);
 
-                TimeLog::factory()
-                    ->count($count)
-                    ->create([
-                        'task_id' => $task->id,
-                        'user_id' => $members->random()->id,
-                    ]);
             });
     }
 }

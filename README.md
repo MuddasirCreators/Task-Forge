@@ -1,8 +1,8 @@
-# TaskForge - Laravel 12 Project Management System
+# TaskForge - Laravel 13 Project Management System
 
 ![TaskForge Dashboard](screenshots/dashboard.png)
 
-TaskForge is a production-ready internal project management application built with Laravel 12.
+TaskForge is a production-ready internal project management application built with Laravel 13.
 
 It helps organizations manage:
 
@@ -15,7 +15,7 @@ It helps organizations manage:
 - Email Alerts
 - Role Based Access Control
 
-Developed as part of the Laravel 12 Engineering Internship Assignment.
+Developed as part of the Laravel 13 Engineering Internship Assignment.
 ## Project Repository
 
 The complete source code of TaskForge is available on GitHub:
@@ -27,7 +27,7 @@ The complete source code of TaskForge is available on GitHub:
 
 ## Authentication
 
-![Login](screenshots/Login.PNG)
+![Login](screenshots/login.PNG)
 
 - User registration 
 - Login / Logout
@@ -71,7 +71,7 @@ TaskForge supports three roles:
 
 ## Client Management
 
-![Clients](screenshots/Clients.PNG)
+![Clients](screenshots/clients.PNG)
 
 Features:
 
@@ -87,7 +87,7 @@ A client cannot be deleted if active projects exist.
 
 ## Project Management
 
-![Projects](screenshots/Projects.PNG)
+![Projects](screenshots/projects.PNG)
 
 Features:
 
@@ -108,7 +108,7 @@ Archive rules:
 
 ## Task Management
 
-![Tasks](screenshots/Tasks.PNG)
+![Tasks](screenshots/tasks.PNG)
 
 Features:
 
@@ -143,7 +143,7 @@ Rules:
 
 | Technology | Version |
 |-|-|
-| Laravel | 12.x |
+| Laravel | 13.8 |
 | PHP | 8.3+ |
 | MySQL | 8.x |
 | Blade | Laravel Blade |
@@ -157,11 +157,11 @@ Rules:
 
 Before installation install:
 
-- PHP >= 8.2
+- PHP >= 8.3
 - Composer
 - MySQL
-- Node.js
-- NPM
+
+
 
 
 Check versions:
@@ -171,9 +171,7 @@ php -v
 
 composer -V
 
-node -v
 
-npm -v
 ```
 
 ---
@@ -296,16 +294,7 @@ http://127.0.0.1:8000
 Install packages:
 
 
-```bash
-npm install
-```
 
-
-Run Vite:
-
-
-```bash
-npm run dev
 ```
 
 
@@ -480,27 +469,27 @@ Project::with([
 
 ## Login
 
-![Login](screenshots/Login.PNG)
+![Login](screenshots/login.PNG)
 
 
 ## Clients
 
-![Clients](screenshots/clients.png)
+![Clients](screenshots/clients.PNG)
 
 
 ## Projects
 
-![Projects](screenshots/Projects.PNG)
+![Projects](screenshots/projects.PNG)
 
 
 ## Tasks
 
-![Tasks](screenshots/Tasks.PNG)
+![Tasks](screenshots/tasks.PNG)
 
 
 ## Time Logs
 
-![Time Logs](screenshots/Time_Logs.PNG)
+![Time Logs](screenshots/time_logs.png)
 
 
 ---
@@ -535,7 +524,7 @@ tests
 # Assignment Compliance
 
 
-Implemented according to Laravel 12 Internship requirements:
+Implemented according to Laravel 13 Internship requirements:
 
 ✔ MVC Architecture  
 ✔ Form Requests  
@@ -552,6 +541,6 @@ Implemented according to Laravel 12 Internship requirements:
 
 # Author
 
-Your Name
+Muddasir Amin
 
-Laravel 12 Full Stack Developer
+Laravel 13 Full Stack Developer
