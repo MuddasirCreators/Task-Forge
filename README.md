@@ -480,7 +480,7 @@ Project::with([
 
 ## Login
 
-![Login](screenshots/login.png)
+![Login](screenshots/Login.PNG)
 
 
 ## Clients
@@ -490,17 +490,17 @@ Project::with([
 
 ## Projects
 
-![Projects](screenshots/projects.png)
+![Projects](screenshots/Projects.PNG)
 
 
 ## Tasks
 
-![Tasks](screenshots/tasks.png)
+![Tasks](screenshots/Tasks.PNG)
 
 
 ## Time Logs
 
-![Time Logs](screenshots/time_logs.png)
+![Time Logs](screenshots/Time_Logs.PNG)
 
 
 ---
