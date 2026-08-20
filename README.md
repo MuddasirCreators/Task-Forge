@@ -1,8 +1,8 @@
-# TaskForge - Laravel 12 Project Management System
+# TaskForge - Laravel 13 Project Management System
 
 ![TaskForge Dashboard](screenshots/dashboard.png)
 
-TaskForge is a production-ready internal project management application built with Laravel 12.
+TaskForge is a production-ready internal project management application built with Laravel 13.
 
 It helps organizations manage:
 
@@ -15,7 +15,7 @@ It helps organizations manage:
 - Email Alerts
 - Role Based Access Control
 
-Developed as part of the Laravel 12 Engineering Internship Assignment.
+Developed as part of the Laravel 13 Engineering Internship Assignment.
 ## Project Repository
 
 The complete source code of TaskForge is available on GitHub:
@@ -143,7 +143,7 @@ Rules:
 
 | Technology | Version |
 |-|-|
-| Laravel | 12.x |
+| Laravel | 13.8 |
 | PHP | 8.3+ |
 | MySQL | 8.x |
 | Blade | Laravel Blade |
@@ -157,11 +157,11 @@ Rules:
 
 Before installation install:
 
-- PHP >= 8.2
+- PHP >= 8.3
 - Composer
 - MySQL
-- Node.js
-- NPM
+
+
 
 
 Check versions:
@@ -171,9 +171,7 @@ php -v
 
 composer -V
 
-node -v
 
-npm -v
 ```
 
 ---
@@ -296,16 +294,7 @@ http://127.0.0.1:8000
 Install packages:
 
 
-```bash
-npm install
-```
 
-
-Run Vite:
-
-
-```bash
-npm run dev
 ```
 
 
@@ -535,7 +524,7 @@ tests
 # Assignment Compliance
 
 
-Implemented according to Laravel 12 Internship requirements:
+Implemented according to Laravel 13 Internship requirements:
 
 ✔ MVC Architecture  
 ✔ Form Requests  
