@@ -38,12 +38,9 @@ jobs:
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
-
         with:
           php-version: "8.3"
-
           extensions: mbstring, dom, fileinfo, pdo_mysql
-
           coverage: none
 
 
@@ -59,18 +56,29 @@ jobs:
         run: php artisan key:generate
 
 
-      - name: Configure MySQL Database
+      - name: Configure Database
         run: |
-          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
-          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
-          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env
-          sed -i 's/DB_DATABASE=.*/DB_DATABASE=taskforge/' .env
-          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
-          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=password/' .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=taskforge" >> .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=password" >> .env
+
+
+      - name: Check Database Config
+        run: |
+          grep DB_ .env
 
 
       - name: Clear Laravel Cache
-        run: php artisan config:clear
+        run: |
+          php artisan config:clear
+
+
+      - name: Wait for MySQL
+        run: |
+          sleep 10
 
 
       - name: Run Database Migrations
