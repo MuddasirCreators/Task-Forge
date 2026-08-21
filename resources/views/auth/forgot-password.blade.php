@@ -1276,16 +1276,24 @@
                         </a>
 
 
-                        <a
-                            href="{{ route('password.request') }}"
-                            class="resend-button"
-                        >
+                      <form method="POST" action="{{ route('password.email') }}">
+    @csrf
 
-                            <i class="bi bi-arrow-repeat"></i>
+    <input 
+        type="hidden"
+        name="email"
+        value="{{ $resetEmail }}"
+    >
 
-                            Send reset link again
-
-                        </a>
+    <button
+        type="submit"
+        class="resend-button"
+        style="cursor:pointer;"
+    >
+        <i class="bi bi-arrow-repeat"></i>
+        Send reset link again
+    </button>
+</form>
 
 
                     </div>

@@ -10,10 +10,12 @@ class CustomPasswordResetNotification extends Notification
 {
     use Queueable;
 
+
     /**
      * Password reset token.
      */
     protected string $token;
+
 
 
     /**
@@ -23,6 +25,7 @@ class CustomPasswordResetNotification extends Notification
     {
         $this->token = $token;
     }
+
 
 
     /**
@@ -36,21 +39,23 @@ class CustomPasswordResetNotification extends Notification
     }
 
 
+
     /**
      * Email notification.
      */
     public function toMail(object $notifiable): MailMessage
     {
+        // Generate reset URL without email parameter
         $resetUrl = url(
             route(
                 'password.reset',
                 [
                     'token' => $this->token,
-                    'email' => $notifiable->getEmailForPasswordReset(),
                 ],
                 false
             )
         );
+
 
         return (new MailMessage)
             ->subject('Password Reset Requested - TaskForge')

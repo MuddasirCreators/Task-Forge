@@ -13,19 +13,21 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Display forgot password page.
      */
     public function create(Request $request): View
     {
         return view('auth.forgot-password', [
             'step' => $request->query('step', 'email'),
-            'resetEmail' => $request->session()->get('reset_email'),
+
+            // Email stored after sending reset link
+            'resetEmail' => $request->session()->get('reset_email', ''),
         ]);
     }
 
 
     /**
-     * Handle password reset link request.
+     * Send password reset link.
      *
      * @throws ValidationException
      */
@@ -33,11 +35,11 @@ class PasswordResetLinkController extends Controller
     {
         /*
         |--------------------------------------------------------------------------
-        | Validate email
+        | Validate Email
         |--------------------------------------------------------------------------
         */
 
-        $request->validate([
+        $validated = $request->validate([
             'email' => [
                 'required',
                 'email',
@@ -49,43 +51,36 @@ class PasswordResetLinkController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Send password reset link
+            | Send Password Reset Link
             |--------------------------------------------------------------------------
             */
 
-            $status = Password::sendResetLink(
-                $request->only('email')
-            );
+            $status = Password::sendResetLink([
+                'email' => $validated['email'],
+            ]);
+
 
 
             /*
             |--------------------------------------------------------------------------
-            | SUCCESS
+            | Success
             |--------------------------------------------------------------------------
             */
 
             if ($status === Password::RESET_LINK_SENT) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Store email in session
-                |--------------------------------------------------------------------------
-                */
+
+                // Store email for verify page and resend button
 
                 $request->session()->put(
                     'reset_email',
-                    $request->email
+                    $validated['email']
                 );
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | IMPORTANT
-                |--------------------------------------------------------------------------
-                |
-                | Redirect directly to the Verify step.
-                |
-                */
+                $request->session()->save();
+
+
 
                 return redirect()->route(
                     'password.request',
@@ -96,67 +91,47 @@ class PasswordResetLinkController extends Controller
             }
 
 
+
             /*
             |--------------------------------------------------------------------------
-            | PASSWORD RESET ERROR
+            | Laravel Password Error
             |--------------------------------------------------------------------------
             */
 
-            return redirect()
-                ->route('password.request')
-                ->withInput(
-                    $request->only('email')
-                )
+            return back()
+                ->withInput()
                 ->withErrors([
                     'email' => __($status),
                 ]);
 
-        }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | SMTP / MAIL ERROR
-        |--------------------------------------------------------------------------
-        */
+        } catch (TransportExceptionInterface $e) {
 
-        catch (TransportExceptionInterface $e) {
 
             report($e);
 
-            return redirect()
-                ->route('password.request')
-                ->withInput(
-                    $request->only('email')
-                )
+
+            return back()
+                ->withInput()
                 ->withErrors([
                     'email' =>
-                        'We could not connect to the email server. '
-                        . 'Please try again later.',
+                    'Unable to connect with mail server. Please try again later.',
                 ]);
 
-        }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | OTHER ERROR
-        |--------------------------------------------------------------------------
-        */
+        } catch (\Throwable $e) {
 
-        catch (\Throwable $e) {
 
             report($e);
 
-            return redirect()
-                ->route('password.request')
-                ->withInput(
-                    $request->only('email')
-                )
+
+            return back()
+                ->withInput()
                 ->withErrors([
                     'email' =>
-                        'Unable to send the password reset link. '
-                        . 'Please try again later.',
+                    'Unable to send password reset link. Please try again later.',
                 ]);
         }
     }

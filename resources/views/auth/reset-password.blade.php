@@ -1042,21 +1042,21 @@
                          ================================================= --}}
 
                     <input
-                        type="hidden"
-                        name="token"
-                        value="{{ $request->route('token') }}"
-                    >
+    type="hidden"
+    name="token"
+    value="{{ $token }}"
+>
 
 
                     {{-- =================================================
                          EMAIL
                          ================================================= --}}
 
-                    <input
-                        type="hidden"
-                        name="email"
-                        value="{{ request('email') }}"
-                    >
+                   <input
+    type="hidden"
+    name="email"
+    value="{{ $email }}"
+>
 
 
                     {{-- =================================================
