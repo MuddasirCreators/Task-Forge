@@ -36,15 +36,22 @@ jobs:
           mkdir -p database
           touch database/database.sqlite
 
-      - name: Configure SQLite database
+      - name: Configure SQLite for testing
         run: |
           sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
-          sed -i 's#DB_DATABASE=.*#DB_DATABASE=database/database.sqlite#' .env
+          sed -i 's/DB_HOST=.*/DB_HOST=/' .env
+          sed -i 's/DB_PORT=.*/DB_PORT=/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=database\/database.sqlite/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=/' .env
+
+      - name: Clear Laravel configuration cache
+        run: php artisan config:clear
 
       - name: Directory permissions
         run: chmod -R 777 storage bootstrap/cache
 
-      - name: Run migrations
+      - name: Run database migrations
         run: php artisan migrate --force
 
       - name: Run Laravel tests
