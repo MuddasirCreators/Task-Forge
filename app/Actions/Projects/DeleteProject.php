@@ -10,11 +10,20 @@ class DeleteProject
     /**
      * Delete a project.
      *
-     * Returns false when the project has tasks.
+     * Business rules:
+     * - Project cannot be deleted if it has associated tasks.
+     * - Project deletion must happen inside a transaction.
+     *
+     * @return array{
+     *     success: bool,
+     *     message: string
+     * }
      */
     public function handle(
         Project $project
-    ): bool {
+    ): array {
+
+
         /*
         |--------------------------------------------------------------------------
         | Prevent Deletion When Tasks Exist
@@ -22,15 +31,35 @@ class DeleteProject
         */
 
         if ($project->tasks()->exists()) {
-            return false;
+
+            return [
+                'success' => false,
+                'message' =>
+                    'Project cannot be deleted because it has associated tasks.'
+            ];
         }
 
-        return DB::transaction(function () use (
-            $project
-        ) {
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Project
+        |--------------------------------------------------------------------------
+        */
+
+        return DB::transaction(function () use ($project) {
+
+
             $project->delete();
 
-            return true;
+
+            return [
+                'success' => true,
+                'message' =>
+                    'Project deleted successfully.'
+            ];
+
         });
+
     }
 }

@@ -2,24 +2,37 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Actions\Team\ActivateUser;
+use App\Actions\Team\CreateTeamMember;
+use App\Actions\Team\DeactivateUser;
+use App\Actions\Team\GetTeamMemberDetails;
+use App\Actions\Team\GetTeamMembers;
+use App\Actions\Team\UpdateTeamMember;
+
+
+use App\Http\Requests\StoreTeamMemberRequest;
+use App\Http\Requests\UpdateTeamMemberRequest;
+
+
 use App\Models\User;
-use App\Models\Task;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+
+
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
+
+
 
 class TeamController extends Controller
 {
 
 
-    /**
-     * Display all team members
-     */
-    public function index()
+    public function index(
+        GetTeamMembers $getTeamMembers
+    )
     {
 
-        $users = User::latest()
-            ->paginate(10);
+        $users = $getTeamMembers->handle();
 
 
         return view(
@@ -33,13 +46,12 @@ class TeamController extends Controller
 
 
 
-    /**
-     * Show create user form
-     */
     public function create()
     {
 
-        return view('team.create');
+        return view(
+            'team.create'
+        );
 
     }
 
@@ -47,244 +59,43 @@ class TeamController extends Controller
 
 
 
-    /**
-     * Store new user
-     */
-    public function store(Request $request)
+    public function store(
+        StoreTeamMemberRequest $request,
+        CreateTeamMember $createTeamMember
+    )
     {
 
-
-        $validated = $request->validate([
-
-
-            'name' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-
-
-            'email' => [
-                'required',
-                'email',
-                'unique:users,email'
-            ],
-
-
-            'phone' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-
-            'role' => [
-                'required',
-                'in:Admin,Manager,Member'
-            ],
-
-
-          'password' => [
-
-    'required',
-
-    'confirmed',
-
-    Password::min(8)
-        ->mixedCase()
-        ->letters()
-        ->numbers()
-        ->symbols(),
-
-],
-
-
-        ]);
-
-
-
-
-
-        User::create([
-
-
-            'name' => $validated['name'],
-
-
-            'email' => $validated['email'],
-
-
-            'phone' => $validated['phone'] ?? null,
-
-
-            'role' => $validated['role'],
-
-
-            'password' => Hash::make(
-                $validated['password']
-            ),
-
-
-            'is_active' => true,
-
-
-            'is_logged_in' => false,
-
-
-        ]);
-
-
-
-
-
-        return redirect()
-
-            ->route('team.index')
-
-            ->with(
-                'success',
-                'New team member created successfully.'
-            );
-
-    }
-
-
-
-
-
-    /**
-     * Display user details
-     */
-    public function show(User $user)
-    {
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | User Assigned Tasks
-        |--------------------------------------------------------------------------
-        */
-
-
-        $tasks = Task::where(
-                'assigned_to',
-                $user->id
-            )
-            ->with([
-                'project',
-                'timeLogs'
-            ])
-            ->latest()
-            ->get();
-
-
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Task Statistics
-        |--------------------------------------------------------------------------
-        */
-
-
-        $totalTasks = $tasks->count();
-
-
-
-        $todoTasks = $tasks
-            ->where('status','Todo')
-            ->count();
-
-
-
-        $progressTasks = $tasks
-            ->where('status','In Progress')
-            ->count();
-
-
-
-        $completedTasks = $tasks
-            ->where('status','Done')
-            ->count();
-
-
-
-
-
-        $overdueTasks = $tasks
-            ->filter(function($task){
-
-                return $task->due_date
-                    &&
-                    $task->due_date->isPast()
-                    &&
-                    $task->status !== 'Done';
-
-            })
-            ->count();
-
-
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Time Logs
-        |--------------------------------------------------------------------------
-        */
-
-
-        $totalLogMinutes = $tasks->sum(function($task){
-
-            return $task->timeLogs
-                ->sum('minutes');
-
-        });
-
-
-
-
-        $totalLogHours = intdiv(
-            $totalLogMinutes,
-            60
+        $createTeamMember->handle(
+            $request->validated()
         );
 
 
+        return Redirect::route(
+            'team.index'
+        )
+        ->with(
+            'success',
+            'New team member created successfully.'
+        );
 
-        $remainingMinutes = $totalLogMinutes % 60;
+    }
 
 
 
 
+
+    public function show(
+        User $user,
+        GetTeamMemberDetails $getTeamMemberDetails
+    )
+    {
 
         return view(
             'team.show',
-            compact(
-
-                'user',
-
-                'tasks',
-
-                'totalTasks',
-
-                'todoTasks',
-
-                'progressTasks',
-
-                'completedTasks',
-
-                'overdueTasks',
-
-                'totalLogMinutes',
-
-                'totalLogHours',
-
-                'remainingMinutes'
-
+            $getTeamMemberDetails->handle(
+                $user
             )
         );
-
 
     }
 
@@ -292,10 +103,9 @@ class TeamController extends Controller
 
 
 
-    /**
-     * Show edit form
-     */
-    public function edit(User $user)
+    public function edit(
+        User $user
+    )
     {
 
         return view(
@@ -309,67 +119,26 @@ class TeamController extends Controller
 
 
 
-    /**
-     * Update user details
-     */
-    public function update(Request $request, User $user)
+    public function update(
+        UpdateTeamMemberRequest $request,
+        User $user,
+        UpdateTeamMember $updateTeamMember
+    )
     {
 
-
-        $validated = $request->validate([
-
-
-            'name' => [
-                'required',
-                'string',
-                'max:255'
-            ],
+        $updateTeamMember->handle(
+            $user,
+            $request->validated()
+        );
 
 
-
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'unique:users,email,' . $user->id
-            ],
-
-
-
-            'phone' => [
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-
-
-            'role' => [
-                'required',
-                'in:Admin,Manager,Member'
-            ],
-
-
-        ]);
-
-
-
-
-
-        $user->update($validated);
-
-
-
-
-
-        return redirect()
-
-            ->route('team.index')
-
-            ->with(
-                'success',
-                'Team member updated successfully.'
-            );
+        return Redirect::route(
+            'team.index'
+        )
+        ->with(
+            'success',
+            'Team member updated successfully.'
+        );
 
     }
 
@@ -377,52 +146,37 @@ class TeamController extends Controller
 
 
 
-    /**
-     * Deactivate user
-     */
-    public function deactivate(User $user)
+    public function deactivate(
+        User $user,
+        DeactivateUser $deactivateUser
+    )
     {
 
+        try {
 
-        if(auth()->id() === $user->id)
-        {
+            $deactivateUser->handle(
+                $user
+            );
+
+
+        } catch (ValidationException $exception) {
+
 
             return back()
-
-                ->with(
-                    'error',
-                    'You cannot deactivate your own account.'
+                ->withErrors(
+                    $exception->errors()
                 );
 
         }
 
 
-
-
-
-        $user->update([
-
-
-            'is_active' => false,
-
-
-            'is_logged_in' => false,
-
-
-        ]);
-
-
-
-
-
-        return redirect()
-
-            ->route('team.index')
-
-            ->with(
-                'success',
-                'User account deactivated successfully.'
-            );
+        return Redirect::route(
+            'team.index'
+        )
+        ->with(
+            'success',
+            'User account deactivated successfully.'
+        );
 
     }
 
@@ -430,33 +184,24 @@ class TeamController extends Controller
 
 
 
-    /**
-     * Activate user
-     */
-    public function activate(User $user)
+    public function activate(
+        User $user,
+        ActivateUser $activateUser
+    )
     {
 
-
-        $user->update([
-
-
-            'is_active' => true,
+        $activateUser->handle(
+            $user
+        );
 
 
-        ]);
-
-
-
-
-
-        return redirect()
-
-            ->route('team.index')
-
-            ->with(
-                'success',
-                'User account activated successfully.'
-            );
+        return Redirect::route(
+            'team.index'
+        )
+        ->with(
+            'success',
+            'User account activated successfully.'
+        );
 
     }
 

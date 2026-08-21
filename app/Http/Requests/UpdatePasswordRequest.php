@@ -5,12 +5,15 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
+
 class UpdatePasswordRequest extends FormRequest
 {
+
     public function authorize(): bool
     {
         return auth()->check();
     }
+
 
 
     public function rules(): array
@@ -18,23 +21,40 @@ class UpdatePasswordRequest extends FormRequest
         return [
 
             'current_password' => [
+
                 'required',
-                'current_password'
+
+                'current_password',
+
             ],
 
 
+
             'password' => [
+
                 'required',
+
+                'string',
+
                 'confirmed',
-                Password::min(8)
-                    ->mixedCase()       // Upper + lower case
-                    ->letters()         // Must contain letters
-                    ->numbers()         // Must contain numbers
-                    ->symbols()         // Must contain special character
+
+                Password::min(10)
+
+                    ->mixedCase()
+
+                    ->letters()
+
+                    ->numbers()
+
+                    ->symbols()
+
+                    ->uncompromised(),
+
             ],
 
         ];
     }
+
 
 
     public function messages(): array
@@ -50,4 +70,5 @@ class UpdatePasswordRequest extends FormRequest
 
         ];
     }
+
 }

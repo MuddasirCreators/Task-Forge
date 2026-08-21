@@ -229,8 +229,7 @@ Clients
 
 
 
-
-{{-- Time Logs --}}
+{{-- Audit Logs --}}
 @if(
 auth()->user()->role == 'Admin' ||
 auth()->user()->role == 'Manager' ||
@@ -241,9 +240,9 @@ auth()->user()->role == 'Member'
 <li class="tf-nav-item">
 
 
-<a href="{{ route('tasks.index') }}"
-class="tf-nav-link {{ request()->routeIs('time-logs.*') ? 'active' : '' }}"
-aria-label="Time Logs">
+<a href="{{ route('audit-logs.index') }}"
+class="tf-nav-link {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}"
+aria-label="Audit Logs">
 
 
 <span class="tf-nav-link__icon">
@@ -268,9 +267,13 @@ stroke-linejoin="round">
 </span>
 
 
+
 <span class="tf-nav-link__label">
-Time Logs
+
+Audit Logs
+
 </span>
+
 
 
 <span class="tf-nav-link__dot"></span>
@@ -283,11 +286,6 @@ Time Logs
 
 
 @endif
-
-
-
-
-
 
 
 {{-- Team --}}

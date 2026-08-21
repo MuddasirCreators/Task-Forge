@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Actions\Profile\UpdateProfile;
+use App\Actions\Profile\UpdatePhone;
+use App\Actions\Profile\UpdatePassword;
+use App\Actions\Profile\DeleteAccount;
+use App\Actions\Profile\LogoutUser;
+
+
 use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\UpdatePhoneRequest;
+use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\DeleteAccountRequest;
+
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+
 
 
 class ProfileController extends Controller
@@ -17,15 +28,20 @@ class ProfileController extends Controller
 
 
     /**
-     * Display the user's settings page.
+     * Display profile page.
      */
-    public function edit(Request $request): View
-    {
-        return view('profile.index', [
+    public function edit(
+        Request $request
+    ): View {
 
-            'user' => $request->user(),
 
-        ]);
+        return view(
+            'profile.index',
+            [
+                'user' => $request->user()
+            ]
+        );
+
     }
 
 
@@ -33,40 +49,31 @@ class ProfileController extends Controller
 
 
     /**
-     * Update user's profile information.
+     * Update profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
+    public function update(
+        ProfileUpdateRequest $request,
+        UpdateProfile $updateProfile
+    ): RedirectResponse {
 
 
-        $user = $request->user();
+        $updateProfile->handle(
 
+            $request->user(),
 
-
-        $user->fill(
             $request->validated()
+
         );
 
 
 
-        if ($user->isDirty('email')) {
-
-            $user->email_verified_at = null;
-
-        }
-
-
-
-        $user->save();
-
-
-
-
-        return Redirect::route('profile.index')
-            ->with(
-                'status',
-                'profile-updated'
-            );
+        return Redirect::route(
+            'profile.index'
+        )
+        ->with(
+            'status',
+            'profile-updated'
+        );
 
     }
 
@@ -77,44 +84,29 @@ class ProfileController extends Controller
     /**
      * Update phone number.
      */
-    public function updatePhone(Request $request): RedirectResponse
-    {
+    public function updatePhone(
+        UpdatePhoneRequest $request,
+        UpdatePhone $updatePhone
+    ): RedirectResponse {
 
 
-        $validated = $request->validate([
+        $updatePhone->handle(
 
+            $request->user(),
 
-            'phone' => [
+            $request->validated()['phone'] ?? null
 
-                'nullable',
-
-                'string',
-
-                'max:20',
-
-            ],
-
-
-        ]);
+        );
 
 
 
-        $request->user()->update([
-
-
-            'phone' => $validated['phone'] ?? null,
-
-
-        ]);
-
-
-
-
-        return Redirect::route('profile.index')
-            ->with(
-                'status',
-                'phone-updated'
-            );
+        return Redirect::route(
+            'profile.index'
+        )
+        ->with(
+            'status',
+            'phone-updated'
+        );
 
     }
 
@@ -122,133 +114,68 @@ class ProfileController extends Controller
 
 
 
- /**
- * Change password.
- */
-public function updatePassword(Request $request): RedirectResponse
-{
-
-    $validated = $request->validate([
-
-
-        'current_password' => [
-
-            'required',
-
-            'current_password',
-
-        ],
+    /**
+     * Update password.
+     */
+    public function updatePassword(
+        UpdatePasswordRequest $request,
+        UpdatePassword $updatePassword
+    ): RedirectResponse {
 
 
+        $updatePassword->handle(
 
-        'password' => [
+            $request->user(),
 
-            'required',
-
-            'confirmed',
-
-            Password::min(8)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols(),
-
-        ],
-
-
-    ],
-    [
-
-        'current_password.current_password' =>
-            'The current password is incorrect.',
-
-
-        'password.confirmed' =>
-            'The password confirmation does not match.',
-
-
-        'password.min' =>
-            'Password must be at least 8 characters.',
-
-    ]);
-
-
-
-
-    $request->user()->update([
-
-
-        'password' => Hash::make(
-
-            $validated['password']
-
-        ),
-
-
-    ]);
-
-
-
-
-
-    return Redirect::route('profile.index')
-
-        ->with(
-
-            'status',
-
-            'password-updated'
+            $request->validated()['password']
 
         );
 
 
-}
+
+        return Redirect::route(
+            'profile.index'
+        )
+        ->with(
+            'status',
+            'password-updated'
+        );
+
+    }
+
 
 
 
 
     /**
-     * Delete user's account.
+     * Delete account.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
-
-
-        $request->validateWithBag(
-            'userDeletion',
-            [
-
-                'password' => [
-
-                    'required',
-
-                    'current_password',
-
-                ],
-
-            ]
-        );
-
-
+    public function destroy(
+        DeleteAccountRequest $request,
+        DeleteAccount $deleteAccount,
+        LogoutUser $logoutUser
+    ): RedirectResponse {
 
 
         $user = $request->user();
 
 
 
-        Auth::logout();
+        $deleteAccount->handle(
+
+            $user
+
+        );
 
 
 
-        $user->delete();
+        $logoutUser->handle(
 
+            $user,
 
+            $request
 
-        $request->session()->invalidate();
-
-
-
-        $request->session()->regenerateToken();
+        );
 
 
 

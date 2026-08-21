@@ -106,49 +106,112 @@
         </div>
     </div>
 
-    {{-- Recent Tasks (Top 5) --}}
-    <div class="tf-card">
-        <div class="tf-card__header">
-            <div class="tf-card__icon"><i class="bi bi-list-task"></i></div>
-            <h3 class="tf-card__title">Recent Tasks</h3>
-            <a href="{{ route('tasks.index') }}" class="tf-btn tf-btn--ghost tf-btn--sm" style="margin-left:auto;">View All</a>
+   {{-- Recent Audit Logs (Top 5) --}}
+<div class="tf-card">
+
+    <div class="tf-card__header">
+
+        <div class="tf-card__icon">
+            <i class="bi bi-clock-history"></i>
         </div>
-        <div class="tf-card__body p-0">
-            <div class="activity-list">
-                @forelse($recentTasks->take(5) as $task)
-                    <div class="activity-item">
-                        <div class="activity-icon 
-                            @if($task->status === 'Done') bg-green-soft
-                            @elseif($task->status === 'In Progress') bg-blue-soft
-                            @else bg-orange-soft
-                            @endif">
-                            <i class="bi 
-                                @if($task->status === 'Done') bi-check-lg
-                                @elseif($task->status === 'In Progress') bi-play-fill
-                                @else bi-circle
-                                @endif"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">{{ \Illuminate\Support\Str::limit($task->title, 38) }}</div>
-                            <div class="activity-meta">
-                                {{ $task->project->name ?? 'No Project' }} •
-                                {{ $task->created_at->diffForHumans() }}
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="activity-item">
-                        <div class="activity-content">
-                            <div class="activity-title text-muted">No recent tasks found</div>
-                        </div>
-                    </div>
-                @endforelse
-            </div>
-        </div>
+
+        <h3 class="tf-card__title">
+            Recent Audit Logs
+        </h3>
+
+        <a href="{{ route('audit-logs.index') }}"
+           class="tf-btn tf-btn--ghost tf-btn--sm"
+           style="margin-left:auto;">
+            View All
+        </a>
+
     </div>
 
-</div>
 
+    <div class="tf-card__body p-0">
+
+        <div class="activity-list">
+
+
+            @forelse($recentAuditLogs as $log)
+
+                <div class="activity-item">
+
+
+                    <div class="activity-icon bg-blue-soft">
+
+                        <i class="bi bi-activity"></i>
+
+                    </div>
+
+
+
+                    <div class="activity-content">
+
+
+                        <div class="activity-title">
+
+                            {{ ucfirst(str_replace('_', ' ', $log->action)) }}
+
+                        </div>
+
+
+
+                        <div class="activity-meta">
+
+                            {{ $log->description }}
+
+                            <br>
+
+                            By:
+                            {{ $log->user->name ?? 'System' }}
+
+                            •
+
+                            {{ $log->created_at->diffForHumans() }}
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            @empty
+
+
+                <div class="activity-item">
+
+
+                    <div class="activity-content">
+
+
+                        <div class="activity-title text-muted">
+
+                            No recent audit logs found
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            @endforelse
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+</div>
 {{-- ================= BOTTOM GRID ================= --}}
 <div class="dash-bottom-grid">
 

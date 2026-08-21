@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AuditLog extends Model
 {
@@ -15,11 +14,19 @@ class AuditLog extends Model
         'description',
     ];
 
-    public function user(): BelongsTo
+
+    /**
+     * User who performed the action
+     */
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+
+    /**
+     * Polymorphic relation
+     */
     public function auditable()
     {
         return $this->morphTo();

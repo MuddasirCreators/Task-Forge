@@ -9,6 +9,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TimeLogController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AuditLogController;
 
 
 /*
@@ -108,7 +109,8 @@ Route::middleware(['auth'])->group(function () {
     ->name('dashboard');
 
 
-
+Route::get('/audit-logs', [AuditLogController::class, 'index'])
+    ->name('audit-logs.index');
 
 
 
