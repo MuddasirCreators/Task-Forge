@@ -7,10 +7,12 @@ on:
   pull_request:
     branches: ["main"]
 
+
 jobs:
   laravel-tests:
 
     runs-on: ubuntu-latest
+
 
     services:
       mysql:
@@ -56,29 +58,29 @@ jobs:
         run: php artisan key:generate
 
 
-      - name: Configure Database
+      - name: Configure MySQL Database
         run: |
-          echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_DATABASE=taskforge" >> .env
-          echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=password" >> .env
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
+          sed -i 's/^DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=taskforge/' .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=root/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=password/' .env
 
 
-      - name: Check Database Config
+      - name: Verify Database Configuration
         run: |
           grep DB_ .env
 
 
-      - name: Clear Laravel Cache
+      - name: Clear Laravel Configuration
         run: |
           php artisan config:clear
+          php artisan cache:clear
 
 
       - name: Wait for MySQL
-        run: |
-          sleep 10
+        run: sleep 10
 
 
       - name: Run Database Migrations
