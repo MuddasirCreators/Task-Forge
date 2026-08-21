@@ -3,6 +3,7 @@ name: Laravel
 on:
   push:
     branches: ["main"]
+
   pull_request:
     branches: ["main"]
 
@@ -11,48 +12,70 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+
+        env:
+          MYSQL_DATABASE: taskforge
+          MYSQL_ROOT_PASSWORD: password
+
+        ports:
+          - 3306:3306
+
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ppassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
 
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
+
         with:
           php-version: "8.3"
-          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
+
+          extensions: mbstring, dom, fileinfo, pdo_mysql
+
           coverage: none
+
 
       - name: Copy environment file
         run: cp .env.example .env
 
+
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
+
 
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Create SQLite database
-        run: |
-          mkdir -p database
-          touch database/database.sqlite
 
-      - name: Configure SQLite for testing
+      - name: Configure MySQL Database
         run: |
-          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
-          sed -i 's/DB_HOST=.*/DB_HOST=/' .env
-          sed -i 's/DB_PORT=.*/DB_PORT=/' .env
-          sed -i 's/DB_DATABASE=.*/DB_DATABASE=database\/database.sqlite/' .env
-          sed -i 's/DB_USERNAME=.*/DB_USERNAME=/' .env
-          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=/' .env
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=taskforge/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=password/' .env
 
-      - name: Clear Laravel configuration cache
+
+      - name: Clear Laravel Cache
         run: php artisan config:clear
 
-      - name: Directory permissions
-        run: chmod -R 777 storage bootstrap/cache
 
-      - name: Run database migrations
+      - name: Run Database Migrations
         run: php artisan migrate --force
 
-      - name: Run Laravel tests
+
+      - name: Run Laravel Tests
         run: php artisan test
